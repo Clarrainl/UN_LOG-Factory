@@ -1,0 +1,5 @@
+train: /home/charlie/Desktop/final_software/data/dataset/images/train
+val: /home/charlie/Desktop/final_software/data/dataset/images/val
+
+nc: 2
+names: ['knot', 'crack']

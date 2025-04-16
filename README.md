@@ -1,86 +1,165 @@
-# Group Project Repository Submission Template 
-## Index
-  - [Overview](#overview) 
-  - [Getting Started](#getting-started)
-  - [Demo](#demo)
-  - [Authors](#authors)
-  - [References](#references)
-  - [Credits](#credits)
-<!--  Other options to write Readme
-  - [Deployment](#deployment)
-  - [Used or Referenced Projects](Used-or-Referenced-Projects)
--->
-## MRAC0X(XX/XX): ClassName XX - Student Project Name
-<!--Write a few sentences of academic context and project description -->  
-This project aims to demonstrate a fantastic application using fascinating technologies, developed within the scope of the best class ever.   
+# MRACXX(24/25): Software III - Log Analysis on Wooden Logs using Deep Learning
+
 ## Overview
-<!-- Write Overview about this project -->
-The project's justification, state-of-the-art, and inspiration live in this section.
+
+This project focuses on the detection and spatial analysis of wood defects—specifically **knots** and **cracks**—on 3D scanned logs. Using **deep learning** with **YOLOv8**, the pipeline performs automated inspection from texture mapping to object detection and 3D projection.
+
+The primary goal is to enhance digital fabrication and material optimization in architecture by automating visual inspections of natural wood materials.
+
+---
+
+## Machine Learning Model
+
+### What kind of ML is used?
+
+We use a **Deep Learning** model based on **YOLOv8 (You Only Look Once version 8)**, which belongs to the class of **Convolutional Neural Networks (CNNs)**. This model is pre-trained and fine-tuned to detect *knots* and *cracks* on wood textures.
+
+### Why Deep Learning?
+
+Deep learning is chosen due to:
+- High performance in image classification and object detection
+- Ability to generalize from complex textures
+- Real-time detection capability
+
+Unlike shallow learning (e.g. SVM or decision trees), deep learning models extract hierarchical features using multiple **hidden layers**, enabling better performance on unstructured data like images.
+
+### Network Architecture (YOLOv8)
+
+Here's a conceptual breakdown:
+
+```
+Input Layer
+↓
+Backbone (CSP-Darknet): feature extraction
+↓
+Neck (PANet): feature aggregation
+↓
+Head (YOLO Layer): bounding box regression + classification
+↓
+Output:
+    - Class: "knot" or "crack"
+    - Confidence score
+    - Bounding box (x, y, w, h)
+```
+
+---
+
+## Dataset & Training
+
+The YOLOv8 model was fine-tuned using a custom dataset:
+
+- Collected images of wood logs with manually annotated defects
+- Two classes: `knot` and `crack`
+- Format: YOLO bounding box annotations
+
+Training was performed using the `ultralytics` library with configuration like:
+
+```bash
+yolo task=detect mode=train model=yolov8n.pt data=wood_defects.yaml epochs=100 imgsz=640
+```
+
+The trained model weights were saved in:
+
+```
+runs/train/wood_defects2/weights/best.pt
+```
+
+---
+
+## Pipeline Script: `analyze_tronco.py`
+
+This script automates the full inspection process on a 3D object.
+
+### Steps
+
+1. **Render Views**  
+   - Uses `trimesh` to rotate the mesh and generate `N` evenly spaced views.
+   - Saves each view as a `.png` in a folder:  
+     `data/<MODEL_NAME>/generated_views/`
+
+2. **Run YOLO Detection**  
+   - Loads the trained YOLOv8 model and performs detection on each rendered image.
+   - Saves annotated results in `view_detections/`
+
+3. **CSV Report**  
+   - Creates a `.csv` file logging detection results per view.
+   - Contains columns: `image`, `class`, `confidence`
+
+4. **Image Grid**  
+   - Combines all detection views into a collage for quick visual inspection.
+
+5. **3D Projection**  
+   - Projects detected points (from 2D images) back to the 3D mesh.
+   - Places labeled spheres for each detection (e.g., `knot`, `crack`)
+   - Uses `vedo` for 3D visualization and optionally exports `3d_projection.png` in offscreen mode.
+
+---
+
+## Outputs
+
+After running the script, you'll get:
+
+| Output                          | Description                                  |
+|---------------------------------|----------------------------------------------|
+| `generated_views/`              | Rendered cylindrical views of the object     |
+| `view_detections/`             | YOLO-annotated detection views               |
+| `detection_report.csv`         | Tabular summary of all detections            |
+| `detection_grid.png`           | Image collage of all detections              |
+| `3d_projection.png`            | Projection of detections on the 3D mesh      |
+
+---
 
 ## Getting Started
 
 ### Prerequisites
-Ensure that you fulfill the following criteria to replicate this project.
-* Ubuntu LTS 20.04 <
-* Python 3.7 <
-* Docker
+Ensure you have:
+- Ubuntu 20.04+ or Docker (ROS + Python environment)
+- Python 3.8+
+- A virtual environment (recommended)
 
-### Depencies
-The project's dependencies include:
-* Numpy - for matrix manipulation
-* OpenCV - for image processing
-* ROS - for interfacing with the robot
-
-The dependencies are satisfied using the following sources:
+### Dependencies
+Install core dependencies:
 
 ```bash
-# ROS Noetic and core dependencies
-wget -c https://raw.githubusercontent.com/qboticslabs/ros_install_noetic/master/ros_install_noetic.sh && chmod +x ./ros_install_noetic.sh && ./ros_install_noetic.sh
-# install numpy
-pip3 install numpy setuptools
+pip install numpy pandas opencv-python ultralytics trimesh vedo
 ```
 
-### Installing
-A step by step series of examples that tell you how to get a development 
-env running
+If running in ROS/Docker, additional setup is required (see ROS section).
 
-```bash
-cd ~/catkin_ws/src
-git submodule init
-git submodule update
-cd ../
-rosdep install --from-paths src --ignore-src -r -y
-catkin_make -DCMAKE_BUILD_TYPE=Release
-source ./devel/setup.bash
-```
-### Deployment
-Add additional notes about how to deploy this on a live system
-* Run the application with `.docker/run_user_nvidia.sh`
-* Ensure that you are running the indicate command `sudo chmod -R <user_name> \dev_ws` for permitions
-* Run `terminator`
+---
 
 ## Demo
-Here is what the project can do and what are the results.
 
-The project can be launched with the following command:
-* `roslaunch package_name package_name.launch`
+To run the full analysis:
 
-This opens up `rviz` and shows the robot moving around
+```bash
+python analyze_tronco.py
+```
+
+To run the ROS node version:
+
+```bash
+rosrun analyze_tronco_ros analyze_node.py
+```
+
+---
 
 ## Authors
-  - [Name](insert linkedin/webpage link) - role
+- [Charlie Larraín](https://github.com/Clarrainl)
 
 ## References
-- [K. Albee et al., “A robust observation, planning, and control pipeline for autonomous rendezvous with tumbling targets,” Frontiers in Robotics and AI, vol. 8, p. 234, 2021, doi: 10.3389/frobt.2021.641338.](https://www.frontiersin.org/articles/10.3389/frobt.2021.641338/full)
+- [Ultralytics YOLOv8 Documentation](https://docs.ultralytics.com/)
+- [Trimesh Documentation](https://trimsh.org/)
+- [Vedo 3D Viewer](https://vedo.embl.es/)
 
 ## Credits
-  - [Name](insert linkedin/webpage link) - role
+- MRAC-IAAC 2025 - Advanced Digital Design in Robotics
 
-<!--  DO NOT REMOVE
--->
 #### Acknowledgements
 
-- Creation of GitHub template: [Marita Georganta](https://www.linkedin.com/in/marita-georganta/) - Robotic Sensing Expert
-- Creation of MRAC-IAAC GitHub Structure: [Huanyu Li](https://www.linkedin.com/in/huanyu-li-457590268/) - Robotic Researcher
+- [Marita Georganta](https://www.linkedin.com/in/marita-georganta/) — GitHub Template
+- [Nestor ]
 
+```
 
+---
