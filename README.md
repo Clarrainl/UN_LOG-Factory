@@ -1,4 +1,4 @@
-# MRACXX(24/25): Software III - Log Analysis on Wooden Logs using Deep Learning
+# MRAC01(24/25): Software III - Log Analysis on Wooden Logs using Deep Learning
 
 ## Overview
 
