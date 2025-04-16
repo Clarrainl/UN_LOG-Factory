@@ -146,6 +146,8 @@ rosrun analyze_tronco_ros analyze_node.py
 
 ## Authors
 - [Charlie Larraín](https://github.com/Clarrainl)
+- [Javi Albo](https://github.com/j-albo)
+- [Mau Weber](https://github.com/Mauweberla)
 
 ## References
 - [Ultralytics YOLOv8 Documentation](https://docs.ultralytics.com/)
@@ -158,7 +160,7 @@ rosrun analyze_tronco_ros analyze_node.py
 #### Acknowledgements
 
 - [Marita Georganta](https://www.linkedin.com/in/marita-georganta/) — GitHub Template
-- [Nestor ]
+- [Nestor Beguin]
 
 ```
 
