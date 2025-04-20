@@ -1,0 +1,5 @@
+🧾 Quality Evaluation Report
+Model: T10
+Nudos detectados: 6
+Grietas detectadas: 24
+Calidad estimada: 🔴 Baja

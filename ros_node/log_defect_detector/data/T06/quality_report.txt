@@ -1,0 +1,5 @@
+🧾 Quality Evaluation Report
+Model: T06
+Nudos detectados: 40
+Grietas detectadas: 3
+Calidad estimada: 🔴 Baja
